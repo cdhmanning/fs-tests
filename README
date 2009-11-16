@@ -1,0 +1,7 @@
+Some file system tests. Mainly intended for yaffs testing, but perhaps
+useful for other file systems too.
+
+fs-bovver:
+
+Muti-threaded fs agro. Looking for crashes and hangs, not
+necessarily sane benaviour.... Early days, we'll see how it turns out.
