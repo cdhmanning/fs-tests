@@ -22,7 +22,7 @@ void *bovver_thread(void *voidargptr)
 	struct thread_init *args = (struct thread_init *)voidargptr;
 	void *bc = NULL;
 	
-	bc = bovver_init(args->n, args->baseDir, args->n & 0);
+	bc = bovver_init(args->n, args->baseDir, args->n & 1);
 	
 	while(bc){
 		bovver_do(bc);

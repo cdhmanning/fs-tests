@@ -32,6 +32,7 @@ void * bovver_init(int threadId, const char *baseDir, int bovver_type)
 		strncpy(bc->baseDir,baseDir,200);
 		bc->bovverType = bovver_type;
 		bc->opMax = 99;
+		printf("bovver_init %d \"%s\"\n",threadId,baseDir);
 	}
 	return (void *)bc;
 }
@@ -130,11 +131,12 @@ void bovver_do_B(void *x)
 	if(!bc->dirH)
 		bc->dirH = opendir(bc->baseDir);
 
+	if(!bc->dirH)
+		return;
+
 	if(n == 0){
 		closedir(bc->dirH);
 		bc->dirH = NULL;
-	} else if(n == 1){
-		rewinddir(bc->dirH);
 	} else {
 		while(n > 1){
 			n--;
