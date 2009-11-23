@@ -5,3 +5,11 @@ fs-bovver:
 
 Muti-threaded fs agro. Looking for crashes and hangs, not
 necessarily sane benaviour.... Early days, we'll see how it turns out.
+
+
+fsx:
+
+The classic fsx has been through a tortured, multi-forked history. I took
+the one from http://www.codemonkey.org.uk/projects/fsx/fsx-linux.c and have
+added my twists.
+
