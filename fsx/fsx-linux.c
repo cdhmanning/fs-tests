@@ -68,10 +68,10 @@ int			logcount = 0;	/* total ops */
 #define OP_MAPWRITE	6
 #define OP_SKIPPED	7
 
-#ifndef PAGE_SIZE
-#define PAGE_SIZE       4096
+#ifndef FSX_PAGE_SIZE
+#define FSX_PAGE_SIZE       4096
 #endif
-#define PAGE_MASK       (PAGE_SIZE - 1)
+#define FSX_PAGE_MASK       (FSX_PAGE_SIZE - 1)
 
 char	*original_buf;			/* a pointer to the original data */
 char	*good_buf;			/* a pointer to the correct data */
@@ -248,7 +248,7 @@ save_buffer(char *buffer, off_t bufferlength, int fd)
 		exit(67);
 	}
 	if (lite) {
-		off_t size_by_seek = lseek(fd, (off_t)0, L_XTND);
+		off_t size_by_seek = lseek(fd, (off_t)0, SEEK_END);
 		if (size_by_seek == (off_t)-1)
 			prterr("save_buffer: lseek eof");
 		else if (bufferlength > size_by_seek) {
@@ -304,7 +304,7 @@ check_buffers(unsigned offset, unsigned size)
 	unsigned op = 0;
 	unsigned bad = 0;
 
-	if (bcmp(good_buf + offset, temp_buf, size) != 0) {
+	if (memcmp(good_buf + offset, temp_buf, size) != 0) {
 		prt("READ BAD DATA: offset = 0x%x, size = 0x%x\n",
 		    offset, size);
 		prt("OFFSET\tGOOD\tBAD\tRANGE\n");
@@ -348,7 +348,7 @@ check_size(void)
 		prterr("check_size: fstat");
 		statbuf.st_size = -1;
 	}
-	size_by_seek = lseek(fd, (off_t)0, L_XTND);
+	size_by_seek = lseek(fd, (off_t)0, SEEK_END);
 	if (file_size != statbuf.st_size || file_size != size_by_seek) {
 		prt("Size error: expected 0x%qx stat 0x%qx seek 0x%qx\n",
 		    (unsigned long long)file_size,
@@ -459,7 +459,7 @@ domapread(unsigned offset, unsigned size)
 		prt("%lu mapread\t0x%x thru\t0x%x\t(0x%x bytes)\n", testcalls,
 		    offset, offset + size - 1, size);
 
-	pg_offset = offset & PAGE_MASK;
+	pg_offset = offset & FSX_PAGE_MASK;
 	map_size  = pg_offset + size;
 
 #ifdef linux
@@ -594,7 +594,7 @@ domapwrite(unsigned offset, unsigned size)
 			exit(201);
 		}
 	}
-	pg_offset = offset & PAGE_MASK;
+	pg_offset = offset & FSX_PAGE_MASK;
 	map_size  = pg_offset + size;
 
 	if ((p = (char *)mmap(0, map_size, PROT_READ | PROT_WRITE,
@@ -993,8 +993,8 @@ main(int argc, char **argv)
 	signal(SIGUSR1,	cleanup);
 	signal(SIGUSR2,	cleanup);
 
-	initstate(seed, state, 256);
-	setstate(state);
+	srandom(seed);
+
 	fd = open(fname, O_RDWR|(lite ? 0 : O_CREAT|O_TRUNC), 0666);
 	if (fd < 0) {
 		prterr(fname);
@@ -1016,7 +1016,7 @@ main(int argc, char **argv)
 	}
 	if (lite) {
 		off_t ret;
-		file_size = maxfilelen = lseek(fd, (off_t)0, L_XTND);
+		file_size = maxfilelen = lseek(fd, (off_t)0, SEEK_END);
 		if (file_size == (off_t)-1) {
 			prterr(fname);
 			warn("main: lseek eof");
